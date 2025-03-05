@@ -7,10 +7,14 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.arch.os }}
     strategy:
       matrix:
-        os: [macos-11, macos-12, macos-13, macos-14]
+        arch:
+          - os: macos-13
+            arch: x64
+          - os: macos-latest
+            arch: arm64
 
     steps:
       - name: Checkout code
@@ -19,20 +23,8 @@ jobs:
       - name: Build
         run: make
 
-      - name: Run test
-        run: |
-          output=$(./nowplaying-cli get-raw)
-          if [ $? -ne 0 ]; then
-            echo "Command failed"
-            exit 1
-          fi
-          if [ "$output" != "(null)" ]; then
-            echo "Unexpected output: $output"
-            exit 1
-          fi
-
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nowplaying-cli-${{ matrix.os }}
+          name: nowplaying-cli-${{ matrix.arch.arch }}
           path: ./nowplaying-cli

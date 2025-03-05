@@ -10,20 +10,20 @@ typedef Boolean (*MRMediaRemoteSendCommandFunction)(MRMediaRemoteCommand cmd, NS
 
 void printHelp() {
     printf("Example Usage: \n");
-    printf("\tnowplaying-cli get-raw\n");
-    printf("\tnowplaying-cli get title album artist\n");
+    printf("\tnowplaying-cli get\n");
     printf("\tnowplaying-cli pause\n");
     printf("\tnowplaying-cli seek 60\n");
+    printf("\tnowplaying-cli skip -10\n");
     printf("\n");
     printf("Available commands: \n");
-    printf("\tget, get-raw, play, pause, togglePlayPause, next, previous, seek <secs>\n");
+    printf("\tget, play, pause, togglePlayPause, next, previous, seek <secs>, skip <secs>\n");
 }
 
 typedef enum {
     GET,
-    GET_RAW,
     MEDIA_COMMAND,
     SEEK,
+    SKIP,
 
 } Command;
 
@@ -36,7 +36,6 @@ NSDictionary<NSString*, NSNumber*> *cmdTranslate = @{
 };
 
 int main(int argc, char** argv) {
-
     if(argc == 1) {
         printHelp();
         return 0;
@@ -45,18 +44,10 @@ int main(int argc, char** argv) {
     Command command = GET;
     NSString *cmdStr = [NSString stringWithUTF8String:argv[1]];
     double seekTime = 0;
+    double skipSeconds = 0;
 
-    int numKeys = argc - 2;
-    NSMutableArray<NSString *> *keys = [NSMutableArray array];
     if(strcmp(argv[1], "get") == 0) {
-        for(int i = 2; i < argc; i++) {
-            NSString *key = [NSString stringWithUTF8String:argv[i]];
-            [keys addObject:key];
-        }
         command = GET;
-    }
-    else if(strcmp(argv[1], "get-raw") == 0) {
-        command = GET_RAW;
     }
     else if(strcmp(argv[1], "seek") == 0 && argc == 3) {
         command = SEEK;
@@ -65,6 +56,16 @@ int main(int argc, char** argv) {
         if(*end != '\0') {
             fprintf(stderr, "Invalid seek time: %s\n", argv[2]);
             fprintf(stderr, "Usage: nowplaying-cli seek <secs>\n");
+            return 1;
+        }
+    }
+    else if(strcmp(argv[1], "skip") == 0 && argc == 3) {
+        command = SKIP;
+        char *end;
+        skipSeconds = strtod(argv[2], &end);
+        if(*end != '\0') {
+            fprintf(stderr, "Invalid skip time: %s\n", argv[2]);
+            fprintf(stderr, "Usage: nowplaying-cli skip <secs>\n");
             return 1;
         }
     }
@@ -90,53 +91,79 @@ int main(int argc, char** argv) {
     MRMediaRemoteSendCommandFunction MRMediaRemoteSendCommand = (MRMediaRemoteSendCommandFunction) CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteSendCommand"));
     if(command == MEDIA_COMMAND) {
         MRMediaRemoteSendCommand((MRMediaRemoteCommand) [cmdTranslate[cmdStr] intValue], nil);
+        fprintf(stdout, "{\"success\":true}\n");
+        [NSApp terminate:nil];
+        return 0;
     }
 
     MRMediaRemoteSetElapsedTimeFunction MRMediaRemoteSetElapsedTime = (MRMediaRemoteSetElapsedTimeFunction) CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteSetElapsedTime"));
     if(command == SEEK) {
         MRMediaRemoteSetElapsedTime(seekTime);
+        fprintf(stdout, "{\"success\":true}\n");
+        [NSApp terminate:nil];
+        return 0;
     }
 
     MRMediaRemoteGetNowPlayingInfoFunction MRMediaRemoteGetNowPlayingInfo = (MRMediaRemoteGetNowPlayingInfoFunction) CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteGetNowPlayingInfo"));
     MRMediaRemoteGetNowPlayingInfo(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(NSDictionary* information) {
-        if(command == MEDIA_COMMAND || command == SEEK) {
+        if(command == SKIP) {
+            double elapsedTime = [[information objectForKey:@"kMRMediaRemoteNowPlayingInfoElapsedTime"] doubleValue];
+            double duration = [[information objectForKey:@"kMRMediaRemoteNowPlayingInfoDuration"] doubleValue];
+            double skipTo = elapsedTime + skipSeconds;
+
+            if(skipTo < 0) {
+                skipTo = elapsedTime - 3;
+            }
+            else if(skipTo >= duration) {
+                skipTo = elapsedTime + 3;
+            }
+
+            if(skipTo < 0) {
+                skipTo = 0;
+            }
+            else if(skipTo > duration) {
+                return;
+            }
+
+            MRMediaRemoteSetElapsedTime(skipTo);
+            fprintf(stdout, "{\"success\":true}\n");
             [NSApp terminate:nil];
             return;
         }
 
-        NSString *data = [information description];
-        const char *dataStr = [data UTF8String];
-        if(command == GET_RAW) {
-            printf("%s\n", dataStr);
-            [NSApp terminate:nil];
-            return;
-        }
+        NSMutableDictionary *modifiedInfo = [NSMutableDictionary dictionaryWithDictionary:information];
+        NSError *error = nil;
 
-        for(int i = 0; i < numKeys; i++) {
-            NSString *propKey = [keys[i] stringByReplacingCharactersInRange:NSMakeRange(0,1) withString:[[keys[i] substringToIndex:1] capitalizedString]];
-            NSString *key = [NSString stringWithFormat:@"kMRMediaRemoteNowPlayingInfo%@", propKey];
+        for (NSString *key in information) {
             NSObject *rawValue = [information objectForKey:key];
-            if(rawValue == nil) {
-                printf("null\n");
-            }
-            else if([key isEqualToString:@"kMRMediaRemoteNowPlayingInfoArtworkData"] || [key isEqualToString:@"kMRMediaRemoteNowPlayingInfoClientPropertiesData"]) {
-                NSData *data = (NSData *) rawValue;
+
+            if ([key isEqualToString:@"kMRMediaRemoteNowPlayingInfoArtworkData"] || [key isEqualToString:@"kMRMediaRemoteNowPlayingInfoClientPropertiesData"]) {
+                NSData *data = (NSData *)rawValue;
                 NSString *base64 = [data base64EncodedStringWithOptions:0];
-                printf("%s\n", [base64 UTF8String]);
+                [modifiedInfo setObject:base64 forKey:key];
             }
-            else if([key isEqualToString:@"kMRMediaRemoteNowPlayingInfoElapsedTime"]) {
-                MRContentItem *item = [[objc_getClass("MRContentItem") alloc] initWithNowPlayingInfo:(__bridge NSDictionary *)information];
-                NSString *value = [NSString stringWithFormat:@"%f", item.metadata.calculatedPlaybackPosition];
-                const char *valueStr = [value UTF8String];
-                printf("%s\n", valueStr);
+            else if ([key isEqualToString:@"kMRMediaRemoteNowPlayingInfoElapsedTime"]) {
+                MRContentItem *item = [[objc_getClass("MRContentItem") alloc] initWithNowPlayingInfo:information];
+                double position = item.metadata.calculatedPlaybackPosition;
+                [modifiedInfo setObject:@(position) forKey:key];
             }
-            else {
-                NSString *value = [NSString stringWithFormat:@"%@", rawValue];
-                const char *valueStr = [value UTF8String];
-                printf("%s\n", valueStr);
+            else if ([rawValue isKindOfClass:[NSDate class]]) {
+                NSTimeInterval timestamp = [(NSDate *)rawValue timeIntervalSince1970];
+                [modifiedInfo setObject:@(timestamp) forKey:key];
             }
         }
+
+        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:modifiedInfo options:NSJSONWritingWithoutEscapingSlashes error:&error];
+        if (!error) {
+            NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+            printf("{\"success\":true,\"data\":%s}\n", [jsonString UTF8String]);
+            [jsonString release];
+        } else {
+            printf("{\"success\":false,\"msg\":\"Error converting to JSON: %s\"}\n", [[error localizedDescription] UTF8String]);
+        }
+
         [NSApp terminate:nil];
+        return;
     });
 
     [NSApp run];
