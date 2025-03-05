@@ -21,10 +21,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build
-        run: make
+        run: make && mv nowplaying-cli nowplaying-cli-${{ matrix.arch.arch }}
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
           name: nowplaying-cli-${{ matrix.arch.arch }}
-          path: ./nowplaying-cli
+          path: nowplaying-cli-${{ matrix.arch.arch }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: nowplaying-cli-${{ matrix.arch.arch }}
+          tag_name: latest
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
