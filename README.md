@@ -1,4 +1,5 @@
 # nowplaying-cli
+
 nowplaying-cli is a macOS command-line utility for retrieving currently playing media, and simulating media actions.
 
 Use nowplaying-cli to get song information and play/pause your media through an easy to use CLI!
@@ -15,12 +16,14 @@ Use nowplaying-cli to get song information and play/pause your media through an 
 ### Build from source
 
 Clone the repository and run `make` to build the binary. You can then move the binary to your desired location.
+
 ```bash
 make
 mv nowplaying-cli ~/.local/bin
 ```
 
 ## Usage
+
 `nowplaying-cli <cmd>`
 | command | description |
 | --- | --- |
@@ -34,6 +37,7 @@ mv nowplaying-cli ~/.local/bin
 | previous | go to previous track |
 
 ## Available properties
+
 | native                                         |
 |------------------------------------------------|
 | kMRMediaRemoteNowPlayingInfoTotalDiscCount     |
@@ -60,3 +64,11 @@ mv nowplaying-cli ~/.local/bin
 | kMRMediaRemoteNowPlayingInfoTotalTrackCount    |
 | kMRMediaRemoteNowPlayingInfoIsMusicApp         |
 | kMRMediaRemoteNowPlayingInfoUniqueIdentifier   |
+
+### Additional properties
+
+| custom                                            |
+|---------------------------------------------------|
+| kMRMediaRemoteGetNowPlayingClientBundleIdentifier |
+| kMRMediaRemoteGetNowPlayingClientDisplayName      |
+| kMRMediaRemoteGetNowPlayingApplicationIsPlaying   |

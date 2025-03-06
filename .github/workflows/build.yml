@@ -1,9 +1,9 @@
 name: Build and Store Artifact
 
 on:
-  pull_request:
   push:
-    branches: [main]
+    tags:
+      - '*'
 
 jobs:
   build:
@@ -33,7 +33,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: nowplaying-cli-${{ matrix.arch.arch }}
-          tag_name: latest
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
