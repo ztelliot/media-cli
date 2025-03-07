@@ -6,7 +6,8 @@ Use nowplaying-cli to get song information and play/pause your media through an 
 
 **Disclaimer:** nowplaying-cli uses private frameworks, which may cause it to break with future macOS software updates.
 
-**Tested and working on:** 
+**Tested and working on:**
+
 - Ventura 13.1, 13.2, 13.3, 13.6
 - Sonoma 14.4
 - Sequoia 15.3
@@ -25,50 +26,51 @@ mv nowplaying-cli ~/.local/bin
 ## Usage
 
 `nowplaying-cli <cmd>`
-| command | description |
-| --- | --- |
-| get | get all non-nil now playing media properties in dictionary format |
-| play | play the currently playing media regardless of current state |
-| pause | pause the currently playing media regardless of current state |
-| togglePlayPause | toggle play/pause based on current state |
-| seek <seconds> | seek to a specific time in the currently playing media |
-| skip <seconds> | skip forward or rewind track |
-| next | skip to next track | 
-| previous | go to previous track |
+
+| command         | description                                                       |
+|-----------------|-------------------------------------------------------------------|
+| get             | get all non-nil now playing media properties in dictionary format |
+| play            | play the currently playing media regardless of current state      |
+| pause           | pause the currently playing media regardless of current state     |
+| togglePlayPause | toggle play/pause based on current state                          |
+| seek <seconds>  | seek to a specific time in the currently playing media            |
+| skip <seconds>  | skip forward or rewind track                                      |
+| next            | skip to next track                                                |
+| previous        | go to previous track                                              |
 
 ## Available properties
 
-| native                                         |
-|------------------------------------------------|
-| kMRMediaRemoteNowPlayingInfoTotalDiscCount     |
-| kMRMediaRemoteNowPlayingInfoShuffleMode        |
-| kMRMediaRemoteNowPlayingInfoTrackNumber        |
-| kMRMediaRemoteNowPlayingInfoDuration           |
-| kMRMediaRemoteNowPlayingInfoRepeatMode         |
-| kMRMediaRemoteNowPlayingInfoTitle              |
-| kMRMediaRemoteNowPlayingInfoPlaybackRate       |
-| kMRMediaRemoteNowPlayingInfoArtworkData        |
-| kMRMediaRemoteNowPlayingInfoArtworkDataWidth   |
-| kMRMediaRemoteNowPlayingInfoArtworkDataHeight  |
-| kMRMediaRemoteNowPlayingInfoAlbum              |
-| kMRMediaRemoteNowPlayingInfoTotalQueueCount    |
-| kMRMediaRemoteNowPlayingInfoArtworkMIMEType    |
-| kMRMediaRemoteNowPlayingInfoMediaType          |
-| kMRMediaRemoteNowPlayingInfoDiscNumber         |
-| kMRMediaRemoteNowPlayingInfoTimestamp          |
-| kMRMediaRemoteNowPlayingInfoGenre              |
-| kMRMediaRemoteNowPlayingInfoQueueIndex         |
-| kMRMediaRemoteNowPlayingInfoArtist             |
-| kMRMediaRemoteNowPlayingInfoDefaultPlaybackRate |
-| kMRMediaRemoteNowPlayingInfoElapsedTime        |
-| kMRMediaRemoteNowPlayingInfoTotalTrackCount    |
-| kMRMediaRemoteNowPlayingInfoIsMusicApp         |
-| kMRMediaRemoteNowPlayingInfoUniqueIdentifier   |
+| native                                          | nowplaying-cli      |
+|-------------------------------------------------|---------------------|
+| kMRMediaRemoteNowPlayingInfoTotalDiscCount      | totalDiscCount      |
+| kMRMediaRemoteNowPlayingInfoShuffleMode         | shuffleMode         |
+| kMRMediaRemoteNowPlayingInfoTrackNumber         | trackNumber         |
+| kMRMediaRemoteNowPlayingInfoDuration            | duration            |
+| kMRMediaRemoteNowPlayingInfoRepeatMode          | repeatMode          |
+| kMRMediaRemoteNowPlayingInfoTitle               | title               |
+| kMRMediaRemoteNowPlayingInfoPlaybackRate        | playbackRate        | 
+| kMRMediaRemoteNowPlayingInfoArtworkData         | artworkData         |
+| kMRMediaRemoteNowPlayingInfoArtworkDataWidth    | artworkDataWidth    |
+| kMRMediaRemoteNowPlayingInfoArtworkDataHeight   | artworkDataHeight   |
+| kMRMediaRemoteNowPlayingInfoAlbum               | album               |
+| kMRMediaRemoteNowPlayingInfoTotalQueueCount     | totalQueueCount     | 
+| kMRMediaRemoteNowPlayingInfoArtworkMIMEType     | artworkMIMEType     |
+| kMRMediaRemoteNowPlayingInfoMediaType           | mediaType           |
+| kMRMediaRemoteNowPlayingInfoDiscNumber          | discNumber          |
+| kMRMediaRemoteNowPlayingInfoTimestamp           | timestamp           |
+| kMRMediaRemoteNowPlayingInfoGenre               | genre               |
+| kMRMediaRemoteNowPlayingInfoQueueIndex          | queueIndex          |
+| kMRMediaRemoteNowPlayingInfoArtist              | artist              |
+| kMRMediaRemoteNowPlayingInfoDefaultPlaybackRate | defaultPlaybackRate |
+| kMRMediaRemoteNowPlayingInfoElapsedTime         | elapsedTime         |
+| kMRMediaRemoteNowPlayingInfoTotalTrackCount     | totalTrackCount     |
+| kMRMediaRemoteNowPlayingInfoIsMusicApp          | isMusicApp          |
+| kMRMediaRemoteNowPlayingInfoUniqueIdentifier    | uniqueIdentifier    |
 
 ### Additional properties
 
-| custom                                            |
-|---------------------------------------------------|
-| kMRMediaRemoteGetNowPlayingClientBundleIdentifier |
-| kMRMediaRemoteGetNowPlayingClientDisplayName      |
-| kMRMediaRemoteGetNowPlayingApplicationIsPlaying   |
+| native                                            | nowplaying-cli   |
+|---------------------------------------------------|------------------|
+| MRMediaRemoteGetNowPlayingClient.bundleIdentifier | bundleIdentifier |
+| MRMediaRemoteGetNowPlayingClient.displayName      | displayName      |
+| MRMediaRemoteGetNowPlayingApplicationIsPlaying    | isPlaying        |

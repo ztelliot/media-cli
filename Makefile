@@ -1,6 +1,6 @@
 CC = clang
 CFLAGS = -O3
-FRAMEWORKS = -framework Cocoa
+FRAMEWORKS = -framework Cocoa -framework CoreAudio
 INCLUDES = -I./include
 
 nowplaying-cli: src/nowplaying.mm
