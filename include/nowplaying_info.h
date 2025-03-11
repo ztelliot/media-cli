@@ -4,13 +4,11 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import "types.h"
 
-// Function to process and return now playing info
-void handleNowPlayingInfo(CFBundleRef bundle, Command command, double skipSeconds);
-
 // Helper functions
 void getNowPlayingMetadata(CFBundleRef bundle, NSMutableDictionary *fullInfo, dispatch_group_t group);
-bool processSkipCommand(CFBundleRef bundle, double skipSeconds, NSDictionary *info);
+bool handleSkipSeconds(CFBundleRef bundle, double skipSeconds);
 void getNowPlayingClientInfo(CFBundleRef bundle, NSMutableDictionary *fullInfo, dispatch_group_t group);
 void getNowPlayingState(CFBundleRef bundle, NSMutableDictionary *fullInfo, dispatch_group_t group);
+NSDictionary* getNowPlayingInfo(CFBundleRef bundle, GetCommandType type);
 
 #endif // NOWPLAYING_INFO_H

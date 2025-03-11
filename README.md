@@ -1,46 +1,104 @@
-# nowplaying-cli
+# media-cli
 
-nowplaying-cli is a macOS command-line utility for retrieving currently playing media, and simulating media actions.
+A command-line tool for controlling media playback on macOS.
 
-Use nowplaying-cli to get song information and play/pause your media through an easy to use CLI!
+## Features
 
-**Disclaimer:** nowplaying-cli uses private frameworks, which may cause it to break with future macOS software updates.
+- Get information about currently playing media
+- Control media playback (play, pause, next, previous, forward, backward, seek)
+- Adjust system volume
+- List and switch audio output devices
 
-**Tested and working on:**
+**Disclaimer:** media-cli uses private frameworks, which may cause it to break with future macOS software updates.
 
-- Ventura 13.1, 13.2, 13.3, 13.6
-- Sonoma 14.4
-- Sequoia 15.3
+**Tested and working on:** macOS 13 Ventura, macOS 14 Sonoma, macOS 15 Sequoia
 
 ## Installation
 
-### Build from source
-
-Clone the repository and run `make` to build the binary. You can then move the binary to your desired location.
+### Using the pre-built binary
 
 ```bash
+# Download the appropriate binary for your architecture
+curl -L https://github.com/ztelliot/media-cli/releases/latest/download/media-cli -o ~/.local/bin
+chmod +x ~/.local/bin/media-cli
+```
+
+### Building from source
+
+```bash
+git clone https://github.com/ztelliot/media-cli.git
+cd media-cli
 make
-mv nowplaying-cli ~/.local/bin
 ```
 
 ## Usage
 
-`nowplaying-cli <cmd>`
+All commands return data in JSON format.
 
-| command         | description                                                       |
-|-----------------|-------------------------------------------------------------------|
-| get             | get all non-nil now playing media properties in dictionary format |
-| play            | play the currently playing media regardless of current state      |
-| pause           | pause the currently playing media regardless of current state     |
-| togglePlayPause | toggle play/pause based on current state                          |
-| seek <seconds>  | seek to a specific time in the currently playing media            |
-| skip <seconds>  | skip forward or rewind track                                      |
-| next            | skip to next track                                                |
-| previous        | go to previous track                                              |
+### Getting Information
 
-## Available properties
+```bash
+# Get all available information
+media-cli get
 
-| native                                          | nowplaying-cli      |
+# Get now playing information
+media-cli get nowplaying
+
+# Get specific nowplaying information
+media-cli get nowplaying info    # Media metadata
+media-cli get nowplaying client  # Client app information
+media-cli get nowplaying status  # Playback status
+
+# Get current volume level
+media-cli get volume
+
+# Get current audio device
+media-cli get device
+```
+
+### Controlling Media
+
+```bash
+# Play/pause media
+media-cli play
+media-cli pause
+media-cli togglePlayPause
+
+# Skip to next/previous track
+media-cli next
+media-cli previous
+
+# Skip forward/backward in the current track
+media-cli skip 10     # Skip forward 10 seconds
+media-cli skip -10    # Skip backward 10 seconds
+
+# Seek to a specific position
+media-cli seek 120    # Seek to 2:00 in the track
+```
+
+### Volume Control
+
+```bash
+# Set volume (0.0-1.0)
+media-cli volume 0.5
+
+# Toggle mute
+media-cli mute
+```
+
+### Audio Device Management
+
+```bash
+# List audio devices
+media-cli devices
+
+# Set output device
+media-cli device DEVICE_ID
+```
+
+### Available properties
+
+| native                                          | media-cli           |
 |-------------------------------------------------|---------------------|
 | kMRMediaRemoteNowPlayingInfoTotalDiscCount      | totalDiscCount      |
 | kMRMediaRemoteNowPlayingInfoShuffleMode         | shuffleMode         |
@@ -66,11 +124,15 @@ mv nowplaying-cli ~/.local/bin
 | kMRMediaRemoteNowPlayingInfoTotalTrackCount     | totalTrackCount     |
 | kMRMediaRemoteNowPlayingInfoIsMusicApp          | isMusicApp          |
 | kMRMediaRemoteNowPlayingInfoUniqueIdentifier    | uniqueIdentifier    |
+|                                                 |                     |
+| -                                               | bundleIdentifier    |
+| -                                               | displayName         |
+| -                                               | isPlaying           |
+| -                                               | volume              |
+| -                                               | deviceID            |
+| -                                               | deviceName          |
 
-### Additional properties
+## Credits
 
-| native                                            | nowplaying-cli   |
-|---------------------------------------------------|------------------|
-| MRMediaRemoteGetNowPlayingClient.bundleIdentifier | bundleIdentifier |
-| MRMediaRemoteGetNowPlayingClient.displayName      | displayName      |
-| MRMediaRemoteGetNowPlayingApplicationIsPlaying    | isPlaying        |
+- [kirtan-shah/nowplaying-cli](https://github.com/kirtan-shah/nowplaying-cli)
+- GitHub Copilot

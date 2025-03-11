@@ -46,23 +46,38 @@ void getNowPlayingMetadata(CFBundleRef bundle, NSMutableDictionary *fullInfo, di
     });
 }
 
-bool processSkipCommand(CFBundleRef bundle, double skipSeconds, NSDictionary *info) {
-    double elapsedTime = [[info objectForKey:@"kMRMediaRemoteNowPlayingInfoElapsedTime"] doubleValue];
-    double duration = [[info objectForKey:@"kMRMediaRemoteNowPlayingInfoDuration"] doubleValue];
-    double skipTo = elapsedTime + skipSeconds;
+bool handleSkipSeconds(CFBundleRef bundle, double skipSeconds) {
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_group_enter(group);
 
-    if (skipTo < 0) skipTo = 0;
-    if (skipTo > duration) {
-        printJsonResponse(NO, nil, @"Cannot skip past end of track");
-        return false;
-    }
+    bool success = false;
+    bool *successPtr = &success;
 
-    MRMediaRemoteSetElapsedTimeFunction MRMediaRemoteSetElapsedTime =
-        (MRMediaRemoteSetElapsedTimeFunction)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteSetElapsedTime"));
-    MRMediaRemoteSetElapsedTime(skipTo);
+    MRMediaRemoteGetNowPlayingInfoFunction MRMediaRemoteGetNowPlayingInfo =
+        (MRMediaRemoteGetNowPlayingInfoFunction)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteGetNowPlayingInfo"));
 
-    printJsonResponse(YES, nil, nil);
-    return true;
+    MRMediaRemoteGetNowPlayingInfo(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(NSDictionary *info) {
+        // Skip logic
+        double elapsedTime = [[info objectForKey:@"kMRMediaRemoteNowPlayingInfoElapsedTime"] doubleValue];
+        double duration = [[info objectForKey:@"kMRMediaRemoteNowPlayingInfoDuration"] doubleValue];
+        double skipTo = elapsedTime + skipSeconds;
+
+        if (skipTo < 0) skipTo = 0;
+        if (skipTo > duration) {
+            // Cannot skip past end of track
+            *successPtr = false;
+        } else {
+            MRMediaRemoteSetElapsedTimeFunction MRMediaRemoteSetElapsedTime =
+                (MRMediaRemoteSetElapsedTimeFunction)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteSetElapsedTime"));
+            MRMediaRemoteSetElapsedTime(skipTo);
+            *successPtr = true;
+        }
+
+        dispatch_group_leave(group);
+    });
+
+    dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+    return success;
 }
 
 void getNowPlayingClientInfo(CFBundleRef bundle, NSMutableDictionary *fullInfo, dispatch_group_t group) {
@@ -95,37 +110,32 @@ void getNowPlayingState(CFBundleRef bundle, NSMutableDictionary *fullInfo, dispa
     });
 }
 
-void handleNowPlayingInfo(CFBundleRef bundle, Command command, double skipSeconds) {
+NSDictionary* getNowPlayingInfo(CFBundleRef bundle, GetCommandType type) {
     NSMutableDictionary *fullInfo = [NSMutableDictionary dictionary];
     dispatch_group_t group = dispatch_group_create();
 
-    // Special handling for skip command
-    if (command == SKIP) {
-        dispatch_group_enter(group);
-        MRMediaRemoteGetNowPlayingInfoFunction MRMediaRemoteGetNowPlayingInfo =
-            (MRMediaRemoteGetNowPlayingInfoFunction)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteGetNowPlayingInfo"));
-
-        MRMediaRemoteGetNowPlayingInfo(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(NSDictionary *info) {
-            bool success = processSkipCommand(bundle, skipSeconds, info);
-            dispatch_group_leave(group);
-            if (!success) {
-                [NSApp terminate:nil];
-            }
-        });
-
-        dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-            [NSApp terminate:nil];
-        });
-        return;
+    // Get metadata if needed
+    if (type == GET_ALL || type == GET_NOWPLAYING || type == GET_NOWPLAYING_INFO) {
+        getNowPlayingMetadata(bundle, fullInfo, group);
     }
 
-    // Get all information for normal nowplaying command
-    getNowPlayingMetadata(bundle, fullInfo, group);
-    getNowPlayingClientInfo(bundle, fullInfo, group);
-    getNowPlayingState(bundle, fullInfo, group);
+    // Get client info if needed
+    if (type == GET_ALL || type == GET_NOWPLAYING || type == GET_NOWPLAYING_CLIENT) {
+        getNowPlayingClientInfo(bundle, fullInfo, group);
+    }
 
-    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-        printJsonResponse(YES, @{@"data": fullInfo}, nil);
-        [NSApp terminate:nil];
-    });
+    // Get player state if needed
+    if (type == GET_ALL || type == GET_NOWPLAYING || type == GET_NOWPLAYING_STATUS) {
+        getNowPlayingState(bundle, fullInfo, group);
+    }
+
+    // Wait for all async operations to complete
+    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC);
+    long result = dispatch_group_wait(group, timeout);
+
+    if (result == 0) {
+        return [NSDictionary dictionaryWithDictionary:fullInfo];
+    }
+
+    return nil;
 }

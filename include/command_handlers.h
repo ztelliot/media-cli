@@ -4,8 +4,10 @@
 #import <Foundation/Foundation.h>
 #import "types.h"
 
+void handleGetCommand(CFBundleRef bundle, GetCommandType type);
+
 // Handle volume commands
-void handleVolumeCommand(bool getOnly, float volumeLevel);
+void handleVolumeCommand(float volumeLevel);
 
 // Handle mute/unmute command
 void handleMuteCommand();
@@ -22,7 +24,7 @@ void handleMediaCommand(CFBundleRef bundle, MRMediaRemoteCommand command);
 // Handle seek command
 void handleSeekCommand(CFBundleRef bundle, double seekTime);
 
-// Handle retrieving now playing information
-void handleNowPlayingInfo(CFBundleRef bundle, Command command, double skipSeconds);
+// Handle skip command
+void handleSkipCommand(CFBundleRef bundle, double skipSeconds);
 
 #endif // NOWPLAYING_COMMAND_HANDLERS_H

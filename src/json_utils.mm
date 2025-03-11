@@ -2,14 +2,22 @@
 
 void printHelp() {
     printf("Example Usage: \n");
-    printf("\tnowplaying-cli get\n");
-    printf("\tnowplaying-cli pause\n");
-    printf("\tnowplaying-cli seek 60\n");
-    printf("\tnowplaying-cli skip -10\n");
+    printf("\tmedia-cli get\n");
+    printf("\tmedia-cli get volume\n");
+    printf("\tmedia-cli get nowplaying\n");
+    printf("\tmedia-cli pause\n");
+    printf("\tmedia-cli seek 60\n");
     printf("\n");
     printf("Available commands: \n");
-    printf("\tget, play, pause, togglePlayPause, next, previous, seek <secs>, skip <secs>,\n");
-    printf("\tvolume, volume <0.0-1.0>, mute, devices, device <id>\n");
+    printf("\tget - all info (volume, nowplaying, default device)\n");
+    printf("\tget device - default audio device\n");
+    printf("\tget volume - current volume\n");
+    printf("\tget nowplaying - all nowplaying info\n");
+    printf("\tget nowplaying info - only nowplaying info\n");
+    printf("\tget nowplaying client - only client info\n");
+    printf("\tget nowplaying status - only status info\n");
+    printf("\tplay, pause, togglePlayPause, next, previous, seek <secs>,\n");
+    printf("\tskip <secs>, volume <0.0-1.0>, mute, devices, device <id>\n");
 }
 
 void printJsonResponse(bool success, NSDictionary *data, NSString *errorMsg) {

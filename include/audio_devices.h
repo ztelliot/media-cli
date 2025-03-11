@@ -5,10 +5,13 @@
 #import "types.h"
 
 // Get a list of available audio devices
-NSDictionary* getAudioDevices(int* count);
+NSArray* getAudioDevices();
 
 // Get the default audio output device
 AudioDeviceID getDefaultOutputDevice();
+
+// Get the name of an audio device
+NSString* getAudioDeviceName(AudioDeviceID deviceID);
 
 // Set the default audio output device
 bool setAudioOutputDevice(AudioDeviceID deviceID);

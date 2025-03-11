@@ -20,4 +20,14 @@ typedef enum {
     SKIP,
 } Command;
 
+typedef enum {
+    GET_ALL,
+    GET_DEVICE,
+    GET_VOLUME,
+    GET_NOWPLAYING,
+    GET_NOWPLAYING_INFO,
+    GET_NOWPLAYING_CLIENT,
+    GET_NOWPLAYING_STATUS
+} GetCommandType;
+
 #endif // NOWPLAYING_TYPES_H

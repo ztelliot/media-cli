@@ -8,21 +8,50 @@
 #import <AppKit/AppKit.h>
 #import <objc/runtime.h>
 
-void handleVolumeCommand(bool getOnly, float volumeLevel) {
-    if (getOnly) {
+void handleGetCommand(CFBundleRef bundle, GetCommandType type) {
+    NSMutableDictionary *result = [NSMutableDictionary dictionary];
+    NSString *errorMsg = nil;
+
+    // Get volume info if needed
+    if (type == GET_ALL || type == GET_VOLUME) {
         float volume = getSystemVolume();
         if (volume >= 0) {
-            printJsonResponse(YES, @{@"volume": @(volume)}, nil);
-        } else {
-            printJsonResponse(NO, nil, @"Failed to get volume");
+            [result setObject:@(volume) forKey:@"volume"];
         }
+    }
+
+    // Get device info if needed
+    if (type == GET_ALL || type == GET_DEVICE) {
+        AudioDeviceID device = getDefaultOutputDevice();
+        if (device) {
+            [result setObject:@(device) forKey:@"deviceID"];
+            NSString *deviceName = getAudioDeviceName(device);
+            if (deviceName) {
+                [result setObject:deviceName forKey:@"deviceName"];
+            }
+        }
+    }
+
+    // Get nowplaying info if needed
+    if (type == GET_ALL || type == GET_NOWPLAYING ||
+        type == GET_NOWPLAYING_INFO || type == GET_NOWPLAYING_CLIENT ||
+        type == GET_NOWPLAYING_STATUS) {
+        NSDictionary *nowPlayingInfo = getNowPlayingInfo(bundle, type);
+
+        if (nowPlayingInfo) {
+            [result addEntriesFromDictionary:nowPlayingInfo];
+        }
+    }
+
+    printJsonResponse(YES, @{@"data": result}, errorMsg);
+}
+
+void handleVolumeCommand(float volumeLevel) {
+    bool success = setSystemVolume(volumeLevel);
+    if (success) {
+        printJsonResponse(YES, @{@"volume": @(volumeLevel)}, nil);
     } else {
-        bool success = setSystemVolume(volumeLevel);
-        if (success) {
-            printJsonResponse(YES, @{@"volume": @(volumeLevel)}, nil);
-        } else {
-            printJsonResponse(NO, nil, @"Failed to set volume");
-        }
+        printJsonResponse(NO, nil, @"Failed to set volume");
     }
 }
 
@@ -36,8 +65,7 @@ void handleMuteCommand() {
 }
 
 void handleDevicesCommand() {
-    int deviceCount = 0;
-    NSDictionary* devices = getAudioDevices(&deviceCount);
+    NSArray* devices = getAudioDevices();
 
     if (devices == NULL) {
         printJsonResponse(NO, nil, @"Failed to get audio devices");
@@ -71,4 +99,13 @@ void handleSeekCommand(CFBundleRef bundle, double seekTime) {
         (MRMediaRemoteSetElapsedTimeFunction)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteSetElapsedTime"));
     MRMediaRemoteSetElapsedTime(seekTime);
     printJsonResponse(YES, nil, nil);
+}
+
+void handleSkipCommand(CFBundleRef bundle, double skipSeconds) {
+    bool success = handleSkipSeconds(bundle, skipSeconds);
+    if (success) {
+        printJsonResponse(YES, nil, nil);
+    } else {
+        printJsonResponse(NO, nil, @"Failed to skip");
+    }
 }

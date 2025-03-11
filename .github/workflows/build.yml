@@ -7,32 +7,24 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.arch.os }}
-    strategy:
-      matrix:
-        arch:
-          - os: macos-13
-            arch: x64
-          - os: macos-latest
-            arch: arm64
-
+    runs-on: macos-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Build
-        run: make && mv nowplaying-cli nowplaying-cli-${{ matrix.arch.arch }}
+        run: make
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: nowplaying-cli-${{ matrix.arch.arch }}
-          path: nowplaying-cli-${{ matrix.arch.arch }}
+          name: media-cli
+          path: media-cli
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: nowplaying-cli-${{ matrix.arch.arch }}
+          files: media-cli
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}

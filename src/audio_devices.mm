@@ -9,13 +9,14 @@ static AudioObjectPropertyAddress createGlobalPropertyAddress(AudioObjectPropert
     };
 }
 
-NSDictionary* getAudioDevices(int* count) {
+NSArray* getAudioDevices() {
     AudioObjectPropertyAddress propertyAddress = createGlobalPropertyAddress(kAudioHardwarePropertyDevices);
+
+    AudioDeviceID defaultOutputDevice = getDefaultOutputDevice();
 
     UInt32 dataSize = 0;
     OSStatus status = AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &dataSize);
     if (status != noErr) {
-        *count = 0;
         return NULL;
     }
 
@@ -25,15 +26,12 @@ NSDictionary* getAudioDevices(int* count) {
 
     if (status != noErr) {
         free(deviceIDs);
-        *count = 0;
         return NULL;
     }
 
-    NSMutableDictionary *deviceList = [NSMutableDictionary dictionary];
-    int outputCount = 0;
+    NSMutableArray *deviceList = [NSMutableArray array];
 
     for (int i = 0; i < deviceCount; i++) {
-        // Check if device has output streams
         propertyAddress.mSelector = kAudioDevicePropertyStreamConfiguration;
         propertyAddress.mScope = kAudioDevicePropertyScopeOutput;
 
@@ -57,27 +55,19 @@ NSDictionary* getAudioDevices(int* count) {
 
         if (!hasOutputChannels) continue;
 
-        // Get device name
-        propertyAddress.mSelector = kAudioObjectPropertyName;
-        propertyAddress.mScope = kAudioObjectPropertyScopeGlobal;
+        NSString *deviceName = getAudioDeviceName(deviceIDs[i]);
 
-        CFStringRef deviceName = NULL;
-        dataSize = sizeof(CFStringRef);
-        status = AudioObjectGetPropertyData(deviceIDs[i], &propertyAddress, 0, NULL, &dataSize, &deviceName);
+        if (deviceName) {
+            NSMutableDictionary *deviceInfo = [NSMutableDictionary dictionary];
+            [deviceInfo setObject:@(deviceIDs[i]) forKey:@"id"];
+            [deviceInfo setObject:deviceName forKey:@"name"];
+            [deviceInfo setObject:@(deviceIDs[i] == defaultOutputDevice) forKey:@"isDefault"];
 
-        if (status == noErr && deviceName) {
-            char deviceNameStr[128];
-            if (CFStringGetCString(deviceName, deviceNameStr, sizeof(deviceNameStr), kCFStringEncodingUTF8)) {
-                NSString *deviceIDString = [NSString stringWithFormat:@"%u", deviceIDs[i]];
-                [deviceList setObject:[NSString stringWithUTF8String:deviceNameStr] forKey:deviceIDString];
-            }
-            CFRelease(deviceName);
-            outputCount++;
+            [deviceList addObject:deviceInfo];
         }
     }
 
     free(deviceIDs);
-    *count = outputCount;
     return deviceList;
 }
 
@@ -89,6 +79,25 @@ AudioDeviceID getDefaultOutputDevice() {
     OSStatus result = AudioObjectGetPropertyData(kAudioObjectSystemObject, &propertyAddress, 0, NULL, &propertySize, &outputDevice);
 
     return (result == noErr) ? outputDevice : 0;
+}
+
+NSString* getAudioDeviceName(AudioDeviceID deviceID) {
+    AudioObjectPropertyAddress propertyAddress = createGlobalPropertyAddress(kAudioObjectPropertyName);
+
+    CFStringRef deviceName = NULL;
+    UInt32 dataSize = sizeof(CFStringRef);
+    OSStatus status = AudioObjectGetPropertyData(deviceID, &propertyAddress, 0, NULL, &dataSize, &deviceName);
+
+    if (status != noErr || !deviceName) return nil;
+
+    char deviceNameStr[128];
+    if (CFStringGetCString(deviceName, deviceNameStr, sizeof(deviceNameStr), kCFStringEncodingUTF8)) {
+        CFRelease(deviceName);
+        return [NSString stringWithUTF8String:deviceNameStr];
+    }
+
+    CFRelease(deviceName);
+    return nil;
 }
 
 bool setAudioOutputDevice(AudioDeviceID deviceID) {

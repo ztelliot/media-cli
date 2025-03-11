@@ -54,19 +54,15 @@ int main(int argc, char** argv) {
             return 1;
         }
     }
-    else if (strcmp(argv[1], "volume") == 0) {
-        if (argc == 3) {
-            char *end;
-            volumeLevel = strtof(argv[2], &end);
-            if (*end != '\0' || volumeLevel < 0.0 || volumeLevel > 1.0) {
-                fprintf(stderr, "Invalid volume level: %s\n", argv[2]);
-                fprintf(stderr, "Usage: nowplaying-cli volume <0.0-1.0>\n");
-                return 1;
-            }
-            handleVolumeCommand(FALSE, volumeLevel);
-        } else {
-            handleVolumeCommand(TRUE, 0);
+    else if (strcmp(argv[1], "volume") == 0 && argc == 3) {
+        char *end;
+        volumeLevel = strtof(argv[2], &end);
+        if (*end != '\0' || volumeLevel < 0.0 || volumeLevel > 1.0) {
+            fprintf(stderr, "Invalid volume level: %s\n", argv[2]);
+            fprintf(stderr, "Usage: nowplaying-cli volume <0.0-1.0>\n");
+            return 1;
         }
+        handleVolumeCommand(volumeLevel);
         [NSApp terminate:nil];
         return 0;
     }
@@ -116,9 +112,39 @@ int main(int argc, char** argv) {
         [NSApp terminate:nil];
         return 0;
     }
-
-    // Handle now playing info & skip commands
-    handleNowPlayingInfo(bundle, command, skipSeconds);
+    else if (command == SKIP) {
+        handleSkipCommand(bundle, skipSeconds);
+        [NSApp terminate:nil];
+        return 0;
+    }
+    else if (command == GET) {
+        if (argc == 2) {
+            // Just "get" without subcommand
+            handleGetCommand(bundle, GET_ALL);
+        } else if (strcmp(argv[2], "device") == 0) {
+            handleGetCommand(bundle, GET_DEVICE);
+        } else if (strcmp(argv[2], "volume") == 0) {
+            handleGetCommand(bundle, GET_VOLUME);
+        } else if (strcmp(argv[2], "nowplaying") == 0) {
+            if (argc == 3) {
+                handleGetCommand(bundle, GET_NOWPLAYING);
+            } else if (strcmp(argv[3], "info") == 0) {
+                handleGetCommand(bundle, GET_NOWPLAYING_INFO);
+            } else if (strcmp(argv[3], "client") == 0) {
+                handleGetCommand(bundle, GET_NOWPLAYING_CLIENT);
+            } else if (strcmp(argv[3], "status") == 0) {
+                handleGetCommand(bundle, GET_NOWPLAYING_STATUS);
+            } else {
+                printHelp();
+                return 1;
+            }
+        } else {
+            printHelp();
+            return 1;
+        }
+        [NSApp terminate:nil];
+        return 0;
+    }
 
     [NSApp run];
     [pool release];
