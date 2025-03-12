@@ -19,7 +19,7 @@ A command-line tool for controlling media playback on macOS.
 
 ```bash
 # Download the appropriate binary for your architecture
-curl -L https://github.com/ztelliot/media-cli/releases/latest/download/media-cli -o ~/.local/bin
+curl -L https://github.com/ztelliot/media-cli/releases/latest/download/media-cli -o ~/.local/bin/media-cli
 chmod +x ~/.local/bin/media-cli
 ```
 

@@ -49,7 +49,7 @@ void handleGetCommand(CFBundleRef bundle, GetCommandType type) {
 void handleVolumeCommand(float volumeLevel) {
     bool success = setSystemVolume(volumeLevel);
     if (success) {
-        printJsonResponse(YES, @{@"volume": @(volumeLevel)}, nil);
+        printJsonResponse(YES, @{@"data": @{@"volume": @(volumeLevel)}}, nil);
     } else {
         printJsonResponse(NO, nil, @"Failed to set volume");
     }
@@ -72,7 +72,7 @@ void handleDevicesCommand() {
         return;
     }
 
-    printJsonResponse(YES, @{@"devices": devices}, nil);
+    printJsonResponse(YES, @{@"data": devices}, nil);
     free(devices);
 }
 
