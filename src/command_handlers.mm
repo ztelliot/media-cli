@@ -91,6 +91,7 @@ void handleMediaCommand(CFBundleRef bundle, MRMediaRemoteCommand command) {
     MRMediaRemoteSendCommandFunction MRMediaRemoteSendCommand =
         (MRMediaRemoteSendCommandFunction)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteSendCommand"));
     MRMediaRemoteSendCommand(command, nil);
+    handleNone(bundle);
     printJsonResponse(YES, nil, nil);
 }
 
@@ -98,6 +99,7 @@ void handleSeekCommand(CFBundleRef bundle, double seekTime) {
     MRMediaRemoteSetElapsedTimeFunction MRMediaRemoteSetElapsedTime =
         (MRMediaRemoteSetElapsedTimeFunction)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteSetElapsedTime"));
     MRMediaRemoteSetElapsedTime(seekTime);
+    handleNone(bundle);
     printJsonResponse(YES, nil, nil);
 }
 

@@ -6,6 +6,7 @@
 
 // Helper functions
 void getNowPlayingMetadata(CFBundleRef bundle, NSMutableDictionary *fullInfo, dispatch_group_t group);
+void handleNone(CFBundleRef bundle);
 bool handleSkipSeconds(CFBundleRef bundle, double skipSeconds);
 void getNowPlayingClientInfo(CFBundleRef bundle, NSMutableDictionary *fullInfo, dispatch_group_t group);
 void getNowPlayingState(CFBundleRef bundle, NSMutableDictionary *fullInfo, dispatch_group_t group);

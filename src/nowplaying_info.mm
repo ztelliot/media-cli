@@ -46,6 +46,20 @@ void getNowPlayingMetadata(CFBundleRef bundle, NSMutableDictionary *fullInfo, di
     });
 }
 
+void handleNone(CFBundleRef bundle) {
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_group_enter(group);
+
+    MRMediaRemoteGetNowPlayingInfoFunction MRMediaRemoteGetNowPlayingInfo =
+        (MRMediaRemoteGetNowPlayingInfoFunction)CFBundleGetFunctionPointerForName(bundle, CFSTR("MRMediaRemoteGetNowPlayingInfo"));
+    MRMediaRemoteGetNowPlayingInfo(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(NSDictionary *info) {
+        dispatch_group_leave(group);
+    });
+
+    dispatch_group_wait(group, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC));
+    return;
+}
+
 bool handleSkipSeconds(CFBundleRef bundle, double skipSeconds) {
     dispatch_group_t group = dispatch_group_create();
     dispatch_group_enter(group);
