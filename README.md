@@ -97,39 +97,41 @@ media-cli device DEVICE_ID
 
 ### Available properties
 
-| native                                          | media-cli           |
-|-------------------------------------------------|---------------------|
-| kMRMediaRemoteNowPlayingInfoTotalDiscCount      | totalDiscCount      |
-| kMRMediaRemoteNowPlayingInfoShuffleMode         | shuffleMode         |
-| kMRMediaRemoteNowPlayingInfoTrackNumber         | trackNumber         |
-| kMRMediaRemoteNowPlayingInfoDuration            | duration            |
-| kMRMediaRemoteNowPlayingInfoRepeatMode          | repeatMode          |
-| kMRMediaRemoteNowPlayingInfoTitle               | title               |
-| kMRMediaRemoteNowPlayingInfoPlaybackRate        | playbackRate        | 
-| kMRMediaRemoteNowPlayingInfoArtworkData         | artworkData         |
-| kMRMediaRemoteNowPlayingInfoArtworkDataWidth    | artworkDataWidth    |
-| kMRMediaRemoteNowPlayingInfoArtworkDataHeight   | artworkDataHeight   |
-| kMRMediaRemoteNowPlayingInfoAlbum               | album               |
-| kMRMediaRemoteNowPlayingInfoTotalQueueCount     | totalQueueCount     | 
-| kMRMediaRemoteNowPlayingInfoArtworkMIMEType     | artworkMIMEType     |
-| kMRMediaRemoteNowPlayingInfoMediaType           | mediaType           |
-| kMRMediaRemoteNowPlayingInfoDiscNumber          | discNumber          |
-| kMRMediaRemoteNowPlayingInfoTimestamp           | timestamp           |
-| kMRMediaRemoteNowPlayingInfoGenre               | genre               |
-| kMRMediaRemoteNowPlayingInfoQueueIndex          | queueIndex          |
-| kMRMediaRemoteNowPlayingInfoArtist              | artist              |
-| kMRMediaRemoteNowPlayingInfoDefaultPlaybackRate | defaultPlaybackRate |
-| kMRMediaRemoteNowPlayingInfoElapsedTime         | elapsedTime         |
-| kMRMediaRemoteNowPlayingInfoTotalTrackCount     | totalTrackCount     |
-| kMRMediaRemoteNowPlayingInfoIsMusicApp          | isMusicApp          |
-| kMRMediaRemoteNowPlayingInfoUniqueIdentifier    | uniqueIdentifier    |
-|                                                 |                     |
-| -                                               | bundleIdentifier    |
-| -                                               | displayName         |
-| -                                               | isPlaying           |
-| -                                               | volume              |
-| -                                               | deviceID            |
-| -                                               | deviceName          |
+| native                                            | media-cli             |
+|---------------------------------------------------|-----------------------|
+| kMRMediaRemoteNowPlayingInfoTotalDiscCount        | totalDiscCount        |
+| kMRMediaRemoteNowPlayingInfoShuffleMode           | shuffleMode           |
+| kMRMediaRemoteNowPlayingInfoTrackNumber           | trackNumber           |
+| kMRMediaRemoteNowPlayingInfoDuration              | duration              |
+| kMRMediaRemoteNowPlayingInfoRepeatMode            | repeatMode            |
+| kMRMediaRemoteNowPlayingInfoTitle                 | title                 |
+| kMRMediaRemoteNowPlayingInfoPlaybackRate          | playbackRate          | 
+| kMRMediaRemoteNowPlayingInfoArtworkData           | artworkData           |
+| kMRMediaRemoteNowPlayingInfoArtworkDataWidth      | artworkDataWidth      |
+| kMRMediaRemoteNowPlayingInfoArtworkDataHeight     | artworkDataHeight     |
+| kMRMediaRemoteNowPlayingInfoArtworkIdentifier     | artworkIdentifier     |
+| kMRMediaRemoteNowPlayingInfoAlbum                 | album                 |
+| kMRMediaRemoteNowPlayingInfoTotalQueueCount       | totalQueueCount       | 
+| kMRMediaRemoteNowPlayingInfoArtworkMIMEType       | artworkMIMEType       |
+| kMRMediaRemoteNowPlayingInfoMediaType             | mediaType             |
+| kMRMediaRemoteNowPlayingInfoDiscNumber            | discNumber            |
+| kMRMediaRemoteNowPlayingInfoTimestamp             | timestamp             |
+| kMRMediaRemoteNowPlayingInfoGenre                 | genre                 |
+| kMRMediaRemoteNowPlayingInfoQueueIndex            | queueIndex            |
+| kMRMediaRemoteNowPlayingInfoArtist                | artist                |
+| kMRMediaRemoteNowPlayingInfoDefaultPlaybackRate   | defaultPlaybackRate   |
+| kMRMediaRemoteNowPlayingInfoElapsedTime           | elapsedTime           |
+| kMRMediaRemoteNowPlayingInfoTotalTrackCount       | totalTrackCount       |
+| kMRMediaRemoteNowPlayingInfoIsMusicApp            | isMusicApp            |
+| kMRMediaRemoteNowPlayingInfoUniqueIdentifier      | uniqueIdentifier      |
+| kMRMediaRemoteNowPlayingInfoContentItemIdentifier | contentItemIdentifier |
+|                                                   |                       |
+| -                                                 | bundleIdentifier      |
+| -                                                 | displayName           |
+| -                                                 | isPlaying             |
+| -                                                 | volume                |
+| -                                                 | deviceID              |
+| -                                                 | deviceName            |
 
 ## Credits
 
